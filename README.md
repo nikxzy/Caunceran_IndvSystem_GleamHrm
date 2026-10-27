@@ -12,6 +12,7 @@ Laravel 5.6 version is used to create the HRM system. The purpose of this system
 
 ## Requirement
 
+
 1. PHP version 7.2+
 2. [PHP Mcrypt](http://php.net/manual/en/book.mcrypt.php)
 3. [PHP Mysql](http://php.net/manual/en/ref.pdo-mysql.php)
