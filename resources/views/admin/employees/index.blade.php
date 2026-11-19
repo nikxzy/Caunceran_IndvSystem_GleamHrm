@@ -25,7 +25,7 @@
       </div>
       <div class="card-body px-3 pb-3 pt-0">
         <div class="table-responsive">
-          <table class="table table-hover table-modern id="employees-table">
+          <table class="table table-hover table-modern" id="employees-table">
             <thead>
               <tr>
                 <th style="width: 50px;">Avatar</th>
@@ -33,7 +33,7 @@
                 <th>Designation</th>
                 <th>Employment Status</th>
                 <th>Joining Date</th>
-                <th text-align="right">Actions</th>
+                <th class="text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@
                     </span>
                   </td>
                   <td>
-                    @if(strtolower($emp->employment_status) == 'permanent')
+                    @if(strtolower($emp->employment_status ?? '') == 'permanent')
                       <span class="badge badge-success px-2 py-1">Permanent</span>
                     @else
                       <span class="badge badge-warning text-dark px-2 py-1">{{ ucfirst($emp->employment_status ?? 'Probation') }}</span>
@@ -78,7 +78,7 @@
                 <tr>
                   <td colspan="6" class="text-center py-4 text-muted">No employees registered in system.</td>
                 </tr>
-              @forelse
+              @endforelse
             </tbody>
           </table>
         </div>
