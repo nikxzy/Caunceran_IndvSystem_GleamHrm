@@ -1,137 +1,89 @@
 @extends('layouts.master')
 
 @section('content')
-<!-- Breadcrumbs Start -->
-<div class="content-header">
+<div class="content-header pt-3">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Employees</h1>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+      <div>
+        <h3 class="m-0 font-weight-bold text-dark">Employee Management</h3>
+        <p class="text-muted small mb-0">PEAMS Personnel Records & Branch Directory</p>
       </div>
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="{{ url('employees') }}">People Management</a></li>
-          <li class="breadcrumb-item active">Employees</li>
-        </ol>
+      <a href="{{ url('/employees/create') }}" class="btn btn-primary shadow-sm">
+        <i class="fas fa-user-plus mr-1"></i> Add New Employee
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="card peams-card">
+      <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title font-weight-bold text-dark m-0">
+          <i class="fas fa-users text-primary mr-2"></i> Personnel Directory
+        </h5>
+      </div>
+      <div class="card-body px-3 pb-3 pt-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern id="employees-table">
+            <thead>
+              <tr>
+                <th style="width: 50px;">Avatar</th>
+                <th>Name & Email</th>
+                <th>Designation</th>
+                <th>Employment Status</th>
+                <th>Joining Date</th>
+                <th text-align="right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($employees as $emp)
+                <tr>
+                  <td>
+                    <img src="{{ asset($emp->picture) }}" onerror="this.src='{{ asset('assets/images/default.png') }}';" class="rounded-circle shadow-sm" style="width: 40px; height: 40px; object-fit: cover;" alt="avatar">
+                  </td>
+                  <td>
+                    <span class="font-weight-bold text-dark d-block">{{ $emp->firstname }} {{ $emp->lastname }}</span>
+                    <small class="text-muted">{{ $emp->official_email }}</small>
+                  </td>
+                  <td>
+                    <span class="badge badge-light border text-dark font-weight-normal px-2 py-1">
+                      {{ $emp->designation ?? 'N/A' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if(strtolower($emp->employment_status) == 'permanent')
+                      <span class="badge badge-success px-2 py-1">Permanent</span>
+                    @else
+                      <span class="badge badge-warning text-dark px-2 py-1">{{ ucfirst($emp->employment_status ?? 'Probation') }}</span>
+                    @endif
+                  </td>
+                  <td>
+                    <small class="text-secondary font-weight-bold">{{ \Carbon\Carbon::parse($emp->joining_date)->format('M d, Y') }}</small>
+                  </td>
+                  <td align="right">
+                    <a href="{{ url('/employees/'.$emp->id.'/edit') }}" class="btn btn-sm btn-outline-primary mr-1" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="{{ url('/employees/'.$emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete employee record?');">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="6" class="text-center py-4 text-muted">No employees registered in system.</td>
+                </tr>
+              @forelse
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<!-- Breadcrumbs End -->
-
-<!-- Session Message Section Start -->
-@include('layouts.partials.error-message')
-<!-- Session Message Section End -->
-
-<!-- Main Content Start -->
-<div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title pt-2"> {{$active_employees}}  Active / {{$employees->count()}} Employees</h4>
-                        <div class="text-right">
-                            <button type="button" onclick="window.location.href='{{route('employee.create')}}'" class="btn btn-info btn-rounded" data-toggle="tooltip" title="Add Employee"><i class="fas fa-plus"></i><span class="d-none d-xs-none d-sm-inline d-md-inline d-lg-inline"> Add Employee</span></button>
-                        </div>
-
-                        <hr>
-
-                        <div class="form-group d-flex justify-content-between">
-                            <div></div>
-                            <select class="form-control mb-3 col-md-3" id="filter">
-                                <option value="select">Select Employees</option>
-                                @foreach($filters as $filter)
-                                <option value="{{$filter}}" @if($filter==$selectedFilter) selected @endif>{{ucfirst(trans($filter))}}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table id="employees" class="table table-bordered table-striped table-hover">
-                                <thead>
-                                <tr>
-                                    @if(count($employees) > 0)
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Mobile </th>
-                                    <th>Designation</th>
-                                    <th>Branch</th>
-                                    <th>Department</th>
-                                    <th>Joining Date</th>
-                                    <th>Employment Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($employees as $employee)
-                                <tr>
-                                    <td>{{$employee->firstname}} {{$employee->lastname}}</td>
-                                    <td>{{$employee->official_email}}</td>
-                                    <td>{{$employee->contact_no}}</td>
-                                    <td>{{ ucfirst(trans($employee->designation))}}</td>
-                                    <td>{{isset($employee->branch) ? $employee->branch->name : ''}} ({{$employee->branch->address}})</td>
-                                    <td>{{isset($employee->department) ? $employee->department->department_name : ''}}</td>
-                                    <td>{{$employee->joining_date}}</td>
-                                    <td>{{$employee->employment_status}}</td>
-                                    <td class="text-nowrap">
-                                        <a class="btn btn-warning btn-sm" href="{{route('employee.edit',['id'=>$employee->id])}}"  data-toggle="tooltip" title="Edit Employee"> <i class="fas fa-pencil-alt text-white"></i></a>
-                                    </td>
-                                </tr>
-                                @endforeach @else
-                                    <tr> No Employee Found</tr>
-                                @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Main Content End -->
-<script>
-    $(document).ready(function () {
-        $('#employees').DataTable({
-          "paging": true,
-          "lengthChange": true,
-          "searching": true,
-          "ordering": true,
-          "info": true,
-          "autoWidth": false,
-          "responsive": true,
-        });
-    });
-
-    $(document).ready(function () {
-        $("#filter").change(function(e){
-            if ($(this).val()=== "select" )
-            {
-                var url = "{{route('employees')}}/"
-            }
-            else
-            {
-                var url = "{{route('employees')}}/" + $(this).val();
-            }
-
-            if (url)
-            {
-                window.location = url;
-            }
-            return false;
-        });
-    });
-
-    $("input.zoho").click(function (event) {
-        if ($(this).is(":checked"))
-        {
-            $("#div_" + event.target.id).show();
-        } 
-        else
-        {
-            $("#div_" + event.target.id).hide();
-        }
-    });
-</script>
-@stop
+@endsection
