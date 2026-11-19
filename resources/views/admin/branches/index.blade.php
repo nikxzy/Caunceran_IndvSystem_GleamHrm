@@ -1,112 +1,79 @@
 @extends('layouts.master')
 
 @section('content')
-<!-- Breadcrumbs Start -->
-<div class="content-header">
+<div class="content-header pt-3">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="m-0">Branches</h1>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+      <div>
+        <h3 class="m-0 font-weight-bold text-dark">Branch & Hub Management</h3>
+        <p class="text-muted small mb-0">Mindoro Pack & Pour Warehousing Logistics Facilities</p>
       </div>
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="{{ url('branch') }}">Settings</a></li>
-          <li class="breadcrumb-item active">Branches</li>
-        </ol>
+      <a href="{{ url('/branches/create') }}" class="btn btn-primary shadow-sm">
+        <i class="fas fa-plus mr-1"></i> Add New Branch
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="container-fluid">
+    <div class="card peams-card">
+      <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title font-weight-bold text-dark m-0">
+          <i class="fas fa-code-branch text-primary mr-2"></i> Active Warehousing Hubs
+        </h5>
+      </div>
+      <div class="card-body px-3 pb-3 pt-0">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern" id="branches-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>Branch Name</th>
+                <th>Weekend Days</th>
+                <th>Created At</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($branches as $branch)
+                <tr>
+                  <td><span class="font-weight-bold text-secondary">#{{ $branch->id }}</span></td>
+                  <td>
+                    <span class="font-weight-bold text-dark d-block">{{ $branch->branch_name }}</span>
+                    <small class="text-muted"><i class="fas fa-map-marker-alt text-danger mr-1"></i> Regional Operating Hub</small>
+                  </td>
+                  <td>
+                    <span class="badge badge-light border text-primary font-weight-normal px-2 py-1">
+                      {{ is_array(json_decode($branch->weekend)) ? implode(', ', json_decode($branch->weekend)) : ($branch->weekend ?? 'N/A') }}
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-secondary font-weight-bold">{{ \Carbon\Carbon::parse($branch->created_at)->format('M d, Y') }}</small>
+                  </td>
+                  <td align="right">
+                    <a href="{{ url('/branches/'.$branch->id.'/edit') }}" class="btn btn-sm btn-outline-primary mr-1" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="{{ url('/branches/'.$branch->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete branch record?');">
+                      @csrf
+                      @method('DELETE')
+                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              @empty
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">No branches found.</td>
+                </tr>
+              @endforelse
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
-<!-- Breadcrumbs End -->
-
-<!-- Session Message Section Start -->
-@include('layouts.partials.error-message')
-<!-- Session Message Section End -->
-
-<!-- Main Content Start -->
-<div class="content">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                    	<div class="text-right">
-                    		<button type="button" class="btn btn-info" onclick="window.location.href='{{route('branch.create')}}'" data-toggle="modal" data-target="#add-contact" title="Add Branch"><i class="fas fa-plus"></i><span class="d-none d-xs-none d-sm-inline d-md-inline d-lg-inline"> Add Branch</span></button>
-                        </div>
-
-                        <hr>
-
-						<div class="table-responsive">
-	                        <table id="branches" class="table table-bordered table-striped table-hover">
-								<thead>
-									<tr>
-										<th> Name</th>
-										<th> Address</th>
-										<th> Timing Start</th>
-										<th> Timing Off</th>
-										<th> Contact No</th>
-										<th> Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									@foreach($branches as $branch)
-										<tr>
-											<td>{{$branch->name}}</td>
-											<td>{{$branch->address}}</td>
-											<td>{{Carbon\Carbon::parse($branch->timing_start)->format('h:i a')}}</td>
-											<td>{{Carbon\Carbon::parse($branch->timing_off)->format('h:i a')}}</td>
-											<td>{{$branch->phone_number}}</td>
-											<td class="text-nowrap">
-												<a class="btn btn-warning btn-sm" href="{{route('branch.edit',[$branch->id])}}"  title="Edit Branch"> <i class="fas fa-pencil-alt text-white"></i></a>
-												<a class="btn btn-danger btn-sm" data-toggle="modal" data-target="#confirm-delete{{ $branch->id }}" title="Delete Branch"> <i class="fas fa-trash-alt text-white"></i> </a>
-											</td>
-										</tr>
-										<div class="modal fade" id="confirm-delete{{ $branch->id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-											<div class="modal-dialog">
-												<div class="modal-content">
-													<form action="{{ route('branch.destroy' , $branch->id )}}" method="post">
-														<input name="_method" type="hidden" value="DELETE">
-														{{ csrf_field() }}
-														<div class="modal-header">
-                                                            <h4 class="modal-title">Delete Branch</h4>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">×</span>
-                                                            </button>
-                                                        </div>
-														<div class="modal-body">
-															Are you sure you want to delete Branch "{{$branch->name}}"?
-														</div>
-														<div class="modal-footer justify-content-between">
-															<button type="button" class="btn btn-default" data-dismiss="modal" title="Cancel"><span class="d-xs-inline d-sm-none d-md-none d-lg-none"><i class="fas fa-window-close"></i></span><span class="d-none d-xs-none d-sm-inline d-md-inline d-lg-inline"> Cancel</span></button>
-                                                            <button  type="submit" class="btn btn-danger btn-ok" title="Delete Team"><span class="d-xs-inline d-sm-none d-md-none d-lg-none"><i class="fas fa-trash-alt"></i></span><span class="d-none d-xs-none d-sm-inline d-md-inline d-lg-inline"> Delete</span></button>
-														</div>
-													</form>
-												</div>
-											</div>
-										</div>
-									@endforeach
-								</tbody>
-							</table>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Main Content End -->
-
-<script>
-    $(document).ready(function () {
-        $('#branches').DataTable({
-            "paging": true,
-            "lengthChange": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    });
-</script>
-@stop
+@endsection
