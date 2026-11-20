@@ -9,7 +9,7 @@
             <div>
                 <div class="d-flex align-items-center gap-2 mb-2">
                     <span class="badge bg-primary bg-opacity-20 text-primary-light border border-primary border-opacity-20 px-3 py-1 rounded-pill fs-7 fw-semibold">
-                        <i class="fas me-1"></i> Operations: Bongabong & Roxas Hubs
+                        <i class="fas fa-warehouse me-1"></i> Operations: Bongabong & Roxas Hubs
                     </span>
                 </div>
                 <h3 class="fw-bold mb-1 text-white">Mindoro Pack & Pour Warehousing Solutions</h3>
@@ -30,7 +30,9 @@
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <span class="text-muted fs-7 fw-semibold text-uppercase tracking-wider">Total Employees</span>
-                        <h2 class="fw-bold text-dark mb-0 mt-1">{{ $employeecount ?? count($employees ?? []) }}</h2>
+                        <h2 class="fw-bold text-dark mb-0 mt-1">
+                            {{ $totalemployees ?? $employeecount ?? (isset($employees) ? count($employees) : (isset($employee) ? count($employee) : 0)) }}
+                        </h2>
                         <span class="text-success fs-8 fw-semibold"><i class="fas fa-arrow-up me-1"></i>Active Workforce</span>
                     </div>
                     <div class="rounded-4 p-3 bg-primary bg-opacity-10 text-primary">
@@ -119,7 +121,10 @@
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <tbody class="border-top-0">
-                                @forelse($employees->take(4) ?? [] as $emp)
+                                @php
+                                    $employeeList = $employees ?? $employee ?? $recent_employees ?? [];
+                                @endphp
+                                @forelse(is_iterable($employeeList) ? collect($employeeList)->take(4) : [] as $emp)
                                 <tr>
                                     <td class="ps-0" style="width: 50px;">
                                         <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 42px; height: 42px;">
@@ -179,7 +184,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // 1. Attendance Chart (Line)
+    // 1. Attendance Chart
     const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
     new Chart(ctxAttendance, {
         type: 'line',
@@ -208,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 2. Designation Chart (Bar)
+    // 2. Designation Chart
     const ctxDesignation = document.getElementById('designationChart').getContext('2d');
     new Chart(ctxDesignation, {
         type: 'bar',
@@ -231,14 +236,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // 3. Gender Ratio Chart (Doughnut)
+    // 3. Gender Ratio Chart
     const ctxGender = document.getElementById('genderChart').getContext('2d');
     new Chart(ctxGender, {
         type: 'doughnut',
         data: {
             labels: ['Male', 'Female'],
             datasets: [{
-                data: [12, 8],
+                data: [{{ $male ?? 12 }}, {{ $female ?? 8 }}],
                 backgroundColor: ['#2563eb', '#ec4899'],
                 borderWidth: 0
             }]
