@@ -220,8 +220,277 @@
         background-color: #ffffff !important;
         font-size: 0.85rem !important;
         color: #64748b !important;
+        padding: 0.9rem 1.25rem !important;
+      }
+
+      /* Page Header / Breadcrumb */
+      .content-header {
+        padding: 1.15rem 0.5rem 0.35rem !important;
+      }
+      .content-header h1, .content-header h3 {
+        letter-spacing: -0.02em;
+      }
+      .content-header .peams-page-title {
+        font-size: 1.55rem;
+      }
+      .breadcrumb {
+        background: transparent !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        font-size: 0.85rem;
+      }
+      .breadcrumb-item a {
+        color: #2563eb !important;
+        font-weight: 500;
+      }
+      .breadcrumb-item.active {
+        color: #94a3b8 !important;
+      }
+      .breadcrumb-item + .breadcrumb-item::before {
+        content: '›';
+        color: #cbd5e1;
+      }
+
+      /* Sidebar Details */
+      .main-sidebar .nav-header {
+        color: #64748b !important;
+        font-size: 0.66rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        padding: 1.1rem 1.15rem 0.4rem !important;
+      }
+      .main-sidebar .nav-sidebar .nav-icon {
+        font-size: 0.9rem;
+        width: 1.65rem;
+        text-align: center;
+      }
+      .main-sidebar .user-panel {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+      }
+      .main-sidebar .sidebar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
+      }
+      .main-sidebar .sidebar::-webkit-scrollbar {
+        width: 5px;
+      }
+      .main-sidebar .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+        border-radius: 999px;
+      }
+
+      /* Navbar Dropdown */
+      .navbar .dropdown-menu {
+        border-radius: 12px !important;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12) !important;
+        padding: 0.4rem 0;
+      }
+      .navbar .dropdown-item {
+        padding: 0.55rem 1.15rem;
+        font-size: 0.88rem;
+        font-weight: 500;
+      }
+      .navbar .dropdown-item:hover {
+        background-color: #f8fafc;
+      }
+
+      /* Alerts */
+      .alert {
+        border: 0 !important;
+        border-radius: 10px !important;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      }
+      .alert-success { background-color: #ecfdf5 !important; color: #047857 !important; }
+      .alert-danger { background-color: #fef2f2 !important; color: #b91c1c !important; }
+
+      /* Modals */
+      .modal-content {
+        border: 0 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2) !important;
+      }
+      .modal-header {
+        border-bottom: 1px solid #f1f5f9 !important;
+      }
+      .modal-title {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        font-size: 1.05rem !important;
+      }
+      .modal-footer {
+        border-top: 1px solid #f1f5f9 !important;
+      }
+
+      /* Shared Summary Rows */
+      .peams-summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.7rem 0;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      .peams-summary-row:last-child {
+        border-bottom: 0;
+      }
+
+      /* Attendance Stat Cards */
+      .peams-stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1.1rem 1.2rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        height: 100%;
+      }
+      .peams-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      }
+      .peams-stat-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-right: 0.9rem;
+        flex: 0 0 46px;
+      }
+      .peams-stat-label {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: #94a3b8;
+        display: block;
+      }
+      .peams-stat-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+      }
+      .peams-legend {
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-right: 1rem;
+      }
+      .peams-legend .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+
+      /* FullCalendar Modern Styling */
+      #calendar {
+        font-family: 'Inter', system-ui, sans-serif;
+      }
+      .fc .fc-toolbar.fc-header-toolbar {
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+      .fc .fc-toolbar h2 {
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        letter-spacing: -0.01em;
+      }
+      .fc .fc-button {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #475569 !important;
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        padding: 0.4rem 0.75rem !important;
+        box-shadow: none !important;
+        text-transform: capitalize;
+      }
+      .fc .fc-button:hover {
+        background: #f1f5f9 !important;
+        color: #1d4ed8 !important;
+      }
+      .fc .fc-button.fc-state-active, .fc .fc-button:active {
+        background: #2563eb !important;
+        border-color: #2563eb !important;
+        color: #ffffff !important;
+      }
+      .fc .fc-button .fc-icon {
+        font-size: 0.9rem;
+      }
+      .fc-unthemed th, .fc-unthemed td, .fc-unthemed thead, .fc-unthemed tbody, .fc-unthemed .fc-divider, .fc-unthemed .fc-row, .fc-unthemed .fc-content, .fc-unthemed .fc-popover, .fc-unthemed .fc-list-view, .fc-unthemed .fc-list-heading td {
+        border-color: #eef2f7 !important;
+      }
+      .fc-unthemed th.fc-day-header {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 0.7rem 0 !important;
+      }
+      .fc-unthemed td.fc-today {
+        background: rgba(37, 99, 235, 0.045) !important;
+      }
+      .fc-unthemed .fc-today .fc-day-number {
+        background: #2563eb;
+        color: #ffffff !important;
+        border-radius: 999px;
+        display: inline-block;
+        min-width: 24px;
+        text-align: center;
+        padding: 1px 5px;
+        margin: 4px !important;
+      }
+      .fc .fc-day-number {
+        font-size: 0.82rem;
+        color: #475569;
+        font-weight: 600;
+        padding: 6px 8px !important;
+      }
+      .fc-event {
+        border: 0 !important;
+        border-radius: 6px !important;
+        padding: 2px 4px !important;
+        font-size: 0.76rem !important;
+        font-weight: 600;
+        margin: 1px 2px !important;
+      }
+      .fc-event .fc-content {
+        white-space: normal !important;
+      }
+      .fc .fc-list-item-title, .fc .fc-time {
+        font-weight: 500;
+      }
+
+      /* Page Fade-in */
+      .content-wrapper > .content, .content-wrapper > .content-header {
+        animation: peamsFadeIn 0.35s ease both;
+      }
+      @keyframes peamsFadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 767.98px) {
+        .content-header .peams-page-title { font-size: 1.3rem; }
+        .fc .fc-toolbar { justify-content: center; }
+        .fc .fc-toolbar h2 { font-size: 1.1rem !important; }
       }
     </style>
+    @stack('styles')
 
     <script src="{{ asset('assets/backend/plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/backend/plugins/Chart.js/Chart.min.js') }}"></script>
@@ -259,5 +528,6 @@
     <script src="{{ asset('assets/backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
 
     @yield('scripts')
+    @stack('scripts')
   </body>
 </html>

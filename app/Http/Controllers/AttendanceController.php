@@ -88,7 +88,7 @@ class AttendanceController extends Controller
         $date = $datetime->toDateString();
 
         $datetime = Carbon::now();
-        $current_time = $datetime->format('h:m');
+        $current_time = $datetime->format('H:i');
 
         $selected_in_out = '';
         $attendance = Attendance::where(['date' => $date, 'employee_id' => $emp_id])->orderBy('timestamp_in', 'asc')->first();
@@ -122,7 +122,7 @@ class AttendanceController extends Controller
         $date = $datetime->toDateString();
 
         $datetime = Carbon::now();
-        $current_time = $datetime->format('h:m');
+        $current_time = $datetime->format('H:i');
         session(['date' => $date]);
         $selected_in_out = '';
         $attendance = AttendanceBreak::where(['date' => $date, 'employee_id' => $emp_id])->orderBy('timestamp_break_start', 'asc')->first();
@@ -396,6 +396,12 @@ class AttendanceController extends Controller
     //NEW
     public function storeAttendanceSummaryToday(Request $request)
     {
+        $this->validate($request, [
+            'employee_id' => 'required|exists:employees,id',
+            'date'        => 'required',
+            'time_in'     => 'required',
+        ]);
+
         $currentDate = Carbon::now();
         $time_in = Carbon::parse($request->time_in);
         $time_out = Carbon::parse($request->time_out);
@@ -423,9 +429,7 @@ class AttendanceController extends Controller
         }
 
         $branch = Branch::find($employee->branch_id);
-        if (isset($branch->timing_start)) {
-            $ofc_in = Carbon::parse($request->time_in)->toDateString().' '.Carbon::parse($branch->timing_start)->toTimeString();
-        }
+        $ofc_in = Carbon::parse($request->time_in)->toDateString().' '.Carbon::parse(optional($branch)->timing_start ?? '00:00:00')->toTimeString();
         $emp_in = Carbon::parse($request->time_in);
         $delay = $emp_in->diffInMinutes($ofc_in);
         $is_delay = 'no';
@@ -849,11 +853,11 @@ class AttendanceController extends Controller
                     $total_time = number_format(($value->total_time / 60), 2, '.', '');
                     $events[] = [
                         'resourceId' => $value->employee_id,
-                        'title'      => $value->status."\n".$employee->firstname.' '.$employee->lastname."\n".$time."\n".$total_time.' hrs'."\n",
+                        'title'      => $value->status."\n".$employee->firstname.' '.$employee->lastname."\n".$time."\n".$total_time.' hrs',
                         'date'       => $value->date,
-                        'start'      => $value->date.' '.Carbon::parse($value->first_timestemp_in)->toTimeString(),
-                        'end'        => Carbon::parse($value->last_timestemp_out)->toTimeString(),
-                        'color'      => 'blue',
+                        'start'      => $value->date,
+                        'end'        => $value->date,
+                        'color'      => $color ?: '#2563eb',
                     ];
                 }
 
@@ -887,10 +891,19 @@ class AttendanceController extends Controller
         }
         $office_locations = Branch::all();
 
+        $employeeIds = $data->pluck('id');
+        $stats = [
+            'employees' => $data->count(),
+            'records'   => AttendanceSummary::whereIn('employee_id', $employeeIds)->count(),
+            'delays'    => AttendanceSummary::whereIn('employee_id', $employeeIds)->where('is_delay', 'yes')->count(),
+            'leaves'    => Leave::whereIn('employee_id', $employeeIds)->count(),
+        ];
+
         return view('admin.attendance.allattendance', $this->metaResponse(), [
             'branch_id'        => $id,
             'office_locations' => $office_locations,
             'events'           => json_encode($events),
+            'stats'            => $stats,
         ]);
     }
 

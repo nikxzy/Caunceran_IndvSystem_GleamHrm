@@ -1,103 +1,149 @@
 @extends('layouts.master')
 
-@section('content')
+@push('styles')
 <link href="{{ asset('assets/backend/plugins/fullcalendar-3.9.0/fullcalendar.min.css') }}" rel="stylesheet">
 <link href="{{ asset('assets/backend/plugins/fullcalendar-3.9.0/fullcalendar.print.css') }}" rel="stylesheet" media="print">
+<style>
+  .peams-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 60%, #2563eb 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 1.4rem 1.6rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+  }
+  .peams-hero h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .peams-hero p {
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0.35rem 0 0;
+    font-size: 0.88rem;
+  }
+  .peams-hero .hero-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .peams-hero .hero-select {
+    min-width: 210px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #0f172a;
+    font-weight: 500;
+  }
+  .peams-hero .btn-light-soft {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+  }
+  .peams-hero .btn-light-soft:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+  }
+  .peams-hero .btn-white {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+  .peams-hero .btn-white:hover {
+    background: #eff6ff;
+    border-color: #eff6ff;
+    color: #1d4ed8;
+  }
+</style>
+@endpush
 
+@section('content')
 <!-- Page Header -->
-<div class="content-header">
+<div class="content-header pt-3">
   <div class="container-fluid">
-    <div class="row mb-2">
-      <div class="col-sm-6">
-        <h1 class="peams-page-title m-0">Attendance Logs</h1>
+    <div class="peams-hero d-flex justify-content-between align-items-center flex-wrap">
+      <div>
+        <h3><i class="fas fa-clock mr-2" style="opacity: 0.8;"></i>Attendance Logs</h3>
+        <p>Daily attendance, leaves and delays across all offices</p>
       </div>
-      <div class="col-sm-6">
-        <ol class="breadcrumb float-sm-right">
-          <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
-          <li class="breadcrumb-item active">Attendance</li>
-        </ol>
+      <div class="hero-actions mt-3 mt-lg-0">
+        <select class="form-control hero-select" id="selectOffice">
+          <option value="0" @if($branch_id == 0) selected @endif>All Offices</option>
+          @foreach($office_locations as $office_location)
+            <option value="{{ $office_location->id }}" @if($branch_id == $office_location->id) selected @endif>{{ $office_location->name }}</option>
+          @endforeach
+        </select>
+        <a href="{{ route('attendance.create') }}" class="btn btn-white">
+          <i class="fas fa-plus mr-1"></i> Add Attendance
+        </a>
+        <a href="{{ route('leaves') }}" class="btn btn-light-soft">
+          <i class="fas fa-calendar-plus mr-1"></i> Add Leave
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<section class="content">
+<div class="content">
   <div class="container-fluid">
-    <div class="card peams-card mb-4">
-      <div class="card-header bg-white d-flex flex-wrap align-items-center justify-content-between">
-        <div>
-          <a href="{{ route('attendance.create') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus mr-1"></i> Add Attendance
-          </a>
-          <a href="{{ route('leaves') }}" class="btn btn-outline-primary btn-sm ml-1">
-            <i class="fas fa-calendar-plus mr-1"></i> Add Leave
-          </a>
-        </div>
-        <div class="mt-2 mt-sm-0" style="min-width: 220px;">
-          <select class="form-control" id="selectOffice">
-            <option value="0" @if($branch_id == 0) selected @endif>All Offices</option>
-            @foreach($office_locations as $office_location)
-              <option value="{{ $office_location->id }}" @if($branch_id == $office_location->id) selected @endif>{{ $office_location->name }}</option>
-            @endforeach
-          </select>
+    @include('layouts.partials.error-message')
+
+    <!-- Stats -->
+    <div class="row">
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="peams-stat-card">
+          <span class="peams-stat-icon" style="background:#dbeafe; color:#1d4ed8;"><i class="fas fa-users"></i></span>
+          <div>
+            <span class="peams-stat-label">Employees</span>
+            <span class="peams-stat-value">{{ number_format($stats['employees']) }}</span>
+          </div>
         </div>
       </div>
-      <div class="card-body">
-        <div id="calendar"></div>
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="peams-stat-card">
+          <span class="peams-stat-icon" style="background:#d1fae5; color:#047857;"><i class="fas fa-clipboard-check"></i></span>
+          <div>
+            <span class="peams-stat-label">Attendance Logs</span>
+            <span class="peams-stat-value">{{ number_format($stats['records']) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="peams-stat-card">
+          <span class="peams-stat-icon" style="background:#fef3c7; color:#b45309;"><i class="fas fa-hourglass-half"></i></span>
+          <div>
+            <span class="peams-stat-label">Delayed Check-ins</span>
+            <span class="peams-stat-value">{{ number_format($stats['delays']) }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 col-sm-6 mb-3">
+        <div class="peams-stat-card">
+          <span class="peams-stat-icon" style="background:#ede9fe; color:#6d28d9;"><i class="fas fa-calendar-alt"></i></span>
+          <div>
+            <span class="peams-stat-label">Leave Records</span>
+            <span class="peams-stat-value">{{ number_format($stats['leaves']) }}</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
 
-<!-- Manage Attendance Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="myModalLabel">Manage Attendance</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            <label for="leave_type">Choose Type</label>
-            <select class="form-control" name="leave_type" id="leave_type">
-              <option selected value="present">Present</option>
-              <option value="Full Leave">Full Leave</option>
-              <option value="Half Leave">Half Leave</option>
-              <option value="Short Leave">Short Leave</option>
-              <option value="Paid Leave">Paid Leave</option>
-            </select>
-          </div>
-          <div class="col-md-12 mt-3">
-            <label for="datefrom">Start Date</label>
-            <div class="input-group date" id="datefrompicker">
-              <input type="text" id="datefrom" class="form-control" name="datefrom" autocomplete="off">
-              <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-12 mt-3">
-            <label for="dateto">End Date</label>
-            <div class="input-group date" id="datetopicker">
-              <input type="text" id="dateto" class="form-control" name="dateto" autocomplete="off">
-              <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-              </div>
-            </div>
-          </div>
-          <p id="hello" class="mb-0 mt-2"></p>
-          <input type="hidden" id="currentStartTime">
-          <input type="hidden" id="currentEndTime">
-          <input type="hidden" id="currentStatus">
+    <!-- Calendar -->
+    <div class="card peams-card mb-4">
+      <div class="card-header border-0 bg-transparent d-flex flex-wrap justify-content-between align-items-center">
+        <h5 class="card-title m-0">
+          <i class="fas fa-calendar-alt text-primary mr-2"></i> Attendance Calendar
+        </h5>
+        <div class="mt-2 mt-sm-0">
+          <span class="peams-legend"><span class="dot" style="background:#00a560;"></span> Present</span>
+          <span class="peams-legend"><span class="dot" style="background:#43474a;"></span> Delayed</span>
+          <span class="peams-legend"><span class="dot" style="background:#ef4444;"></span> Leave</span>
+          <span class="peams-legend"><span class="dot" style="background:#ec4899;"></span> Birthday</span>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="submit" id="update" data-dismiss="modal" class="btn btn-primary">Update</button>
-        <button type="submit" id="del" class="btn btn-danger">Delete</button>
+      <div class="card-body pt-2">
+        <div id="calendar"></div>
       </div>
     </div>
   </div>
@@ -115,28 +161,25 @@
         center: 'title',
         right: 'month,agendaWeek,agendaDay'
       },
+      defaultView: 'month',
       eventLimit: true,
-      editable: 1,
+      height: 'auto',
       eventClick: function (event) {
         if (event.title.search('Birthday') !== -1) {
-          // window.location = "{{ route('employees') }}/" + event.resourceId + "/" + event.date;
+          return;
         }
         if (event.title.search('present') !== -1) {
-          window.location = "{{ route('attendance.create') }}/" + event.resourceId + "/" + event.date;
+          window.location = "{{ route('attendance.create') }}/" + event.resourceId + "/" + event.date.format('YYYY-MM-DD');
         }
-        if (event.title.search('leave') != -1) {
-          window.location = "{{ route('leaves') }}/show/" + event.resourceId;
+        if (event.title.search('leave') !== -1) {
+          window.location = "{{ url('leave/show') }}/" + event.resourceId;
         }
       },
       events: {!! $events !!}
     });
 
     $('#selectOffice').change(function () {
-      var url = "{{ route('attendance') }}/" + $(this).val();
-      if (url) {
-        window.location = url;
-      }
-      return false;
+      window.location = "{{ route('attendance') }}/" + $(this).val();
     });
   });
 </script>

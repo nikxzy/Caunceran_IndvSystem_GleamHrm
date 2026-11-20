@@ -481,12 +481,12 @@ Route::group(['middleware' => 'auth'], function () {
             'as'   => 'attendance.sheet',
         ]);
 
-        Route::Get('/attendance/create/{id?}/{date?}/', [
+        Route::Get('/attendance/create/{id?}/{date?}', [
             'uses' => 'AttendanceController@create', //show Attendance
             'as'   => 'attendance.create',
         ]);
 
-        Route::Get('/attendance/createByAjax/{id?}/{date?}/', [
+        Route::Get('/attendance/createByAjax/{id?}/{date?}', [
             'uses' => 'AttendanceController@createByAjax', //show Attendance
             'as'   => 'attendance.createByAjax',
         ]);
@@ -545,7 +545,7 @@ Route::group(['middleware' => 'auth'], function () {
         ]);
         //Attendance Break
 
-        Route::Get('/attendance/create_break/{id?}/{date?}/', [
+        Route::Get('/attendance/create_break/{id?}/{date?}', [
             'uses' => 'AttendanceController@createBreak', //show Attendance
             'as'   => 'attendance.createBreak',
         ]);
@@ -675,7 +675,7 @@ Route::group(['middleware' => 'auth'], function () {
         'uses' => 'AttendanceController@authUserTimeline',
         'as'   => 'myAttendance',
     ]);
-    Route::Get('/add/attendance/{id?}/{date?}/', [
+    Route::Get('/add/attendance/{id?}/{date?}', [
         'uses' => 'AttendanceController@createBreak', //show Attendance
         'as'   => 'add.attendance',
     ]);
