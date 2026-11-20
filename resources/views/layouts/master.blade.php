@@ -157,6 +157,63 @@
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
       }
 
+      /* PEAMS Shared Page Components */
+      .peams-card {
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.05) !important;
+        overflow: hidden;
+      }
+      .peams-card .card-header {
+        padding: 1.1rem 1.4rem !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+      }
+      .peams-page-title {
+        font-weight: 700 !important;
+        color: #0f172a !important;
+        letter-spacing: -0.01em;
+      }
+      .table-modern {
+        margin-bottom: 0 !important;
+      }
+      .table-modern thead th {
+        border-top: 0 !important;
+        white-space: nowrap;
+      }
+      .table-modern tbody tr {
+        transition: background-color 0.15s ease;
+      }
+      .table-modern tbody tr:hover {
+        background-color: #f8fafc !important;
+      }
+      .table-modern td, .table-modern th {
+        vertical-align: middle !important;
+        border-top: 1px solid #f1f5f9 !important;
+      }
+      .badge-soft-primary { background-color: #dbeafe; color: #1d4ed8; }
+      .badge-soft-success { background-color: #d1fae5; color: #047857; }
+      .badge-soft-warning { background-color: #fef3c7; color: #b45309; }
+      .badge-soft-danger  { background-color: #fee2e2; color: #b91c1c; }
+      .badge-soft-secondary { background-color: #e2e8f0; color: #475569; }
+      .badge-soft-primary, .badge-soft-success, .badge-soft-warning,
+      .badge-soft-danger, .badge-soft-secondary {
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        display: inline-block;
+        line-height: 1.2;
+      }
+      .peams-action-btn {
+        width: 34px;
+        height: 34px;
+        padding: 0 !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px !important;
+      }
+
       /* Footer Styling */
       .main-footer {
         border-top: 1px solid #e2e8f0 !important;
@@ -200,5 +257,7 @@
     <script src="{{ asset('assets/backend/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('assets/backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
     <script src="{{ asset('assets/backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+
+    @yield('scripts')
   </body>
 </html>

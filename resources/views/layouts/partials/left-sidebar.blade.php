@@ -44,12 +44,12 @@
             <p>Employees</p>
           </a>
         </li>
-        <li class="nav-item">
-          <a href="{{ url('/branches') }}" class="nav-link {{ request()->is('branches*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-code-branch"></i>
-            <p>Branches / Hubs</p>
-          </a>
-        </li>
+       <li class="nav-item">
+  <a href="{{ route('branch.index') }}" class="nav-link {{ request()->is('branch*') ? 'active' : '' }}">
+    <i class="nav-icon fas fa-code-branch"></i>
+    <p>Branches / Hubs</p>
+  </a>
+</li>
         <li class="nav-item">
           <a href="{{ url('/departments') }}" class="nav-link {{ request()->is('departments*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-building"></i>
@@ -65,13 +65,13 @@
 
         <li class="nav-header">ATTENDANCE & LEAVES</li>
         <li class="nav-item">
-          <a href="{{ url('/attendance') }}" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
+          <a href="{{ route('attendance') }}" class="nav-link {{ request()->is('attendance*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-clock"></i>
             <p>Attendance Logs</p>
           </a>
         </li>
         <li class="nav-item">
-          <a href="{{ url('/leaves') }}" class="nav-link {{ request()->is('leaves*') ? 'active' : '' }}">
+          <a href="{{ route('employeeleaves') }}" class="nav-link {{ request()->is('employee_leaves*') || request()->is('leave*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-calendar-alt"></i>
             <p>Leave Applications</p>
           </a>
@@ -79,7 +79,7 @@
 
         <li class="nav-header">SYSTEM ADMINISTRATION</li>
         <li class="nav-item">
-          <a href="{{ url('/roles_permissions') }}" class="nav-link {{ request()->is('roles_permissions*') ? 'active' : '' }}">
+          <a href="{{ route('roles_permissions') }}" class="nav-link {{ request()->is('roles*') || request()->is('role/*') ? 'active' : '' }}">
             <i class="nav-icon fas fa-user-shield"></i>
             <p>Roles & RBAC</p>
           </a>

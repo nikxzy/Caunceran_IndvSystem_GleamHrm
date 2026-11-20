@@ -45,6 +45,12 @@ Route::get('/job/skill/{jobId}', [
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
+    // Legacy sidebar URLs (kept so old bookmarks do not 404)
+    Route::redirect('/branches', '/branch');
+    Route::redirect('/attendance', '/attendance/show');
+    Route::redirect('/leaves', '/employee_leaves');
+    Route::redirect('/roles_permissions', '/roles');
+
     // Salary Slip routes
     Route::Get('/slips/salary/{month?}', [
         'uses' => 'SalarySlipController@index',

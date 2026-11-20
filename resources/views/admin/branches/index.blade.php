@@ -5,10 +5,10 @@
   <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
       <div>
-        <h3 class="m-0 font-weight-bold text-dark">Branch & Hub Management</h3>
-        <p class="text-muted small mb-0">Mindoro Pack & Pour Warehousing Logistics Facilities</p>
+        <h3 class="peams-page-title m-0">Branch &amp; Hub Management</h3>
+        <p class="text-muted small mb-0">Packaging &amp; Equipment Asset Management Facilities</p>
       </div>
-      <a href="{{ url('/branches/create') }}" class="btn btn-primary shadow-sm">
+      <a href="{{ route('branch.create') }}" class="btn btn-primary shadow-sm">
         <i class="fas fa-plus mr-1"></i> Add New Branch
       </a>
     </div>
@@ -17,22 +17,26 @@
 
 <div class="content">
   <div class="container-fluid">
+    @include('layouts.partials.error-message')
+
     <div class="card peams-card">
-      <div class="card-header border-0 bg-transparent pt-3 px-3 d-flex justify-content-between align-items-center">
-        <h5 class="card-title font-weight-bold text-dark m-0">
+      <div class="card-header border-0 bg-transparent d-flex justify-content-between align-items-center">
+        <h5 class="card-title m-0">
           <i class="fas fa-code-branch text-primary mr-2"></i> Active Warehousing Hubs
         </h5>
+        <span class="badge badge-soft-primary">{{ $branches->count() }} Total</span>
       </div>
-      <div class="card-body px-3 pb-3 pt-0">
+      <div class="card-body p-0">
         <div class="table-responsive">
           <table class="table table-hover table-modern" id="branches-table">
             <thead>
               <tr>
-                <th style="width: 60px;">ID</th>
-                <th>Branch Name</th>
+                <th style="width: 70px;">ID</th>
+                <th>Branch Details</th>
+                <th>Operating Hours</th>
                 <th>Weekend Days</th>
-                <th>Created At</th>
-                <th class="text-right">Actions</th>
+                <th class="text-center">Status</th>
+                <th class="text-right" style="width: 130px;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -40,25 +44,47 @@
                 <tr>
                   <td><span class="font-weight-bold text-secondary">#{{ $branch->id }}</span></td>
                   <td>
-                    <span class="font-weight-bold text-dark d-block">{{ $branch->branch_name }}</span>
-                    <small class="text-muted"><i class="fas fa-map-marker-alt text-danger mr-1"></i> Regional Operating Hub</small>
+                    <span class="font-weight-bold text-dark d-block">{{ $branch->name }}</span>
+                    <small class="text-muted">
+                      <i class="fas fa-map-marker-alt text-danger mr-1"></i>
+                      {{ $branch->address ?? 'No address provided' }}
+                    </small>
                   </td>
                   <td>
-                    <span class="badge badge-light border text-primary font-weight-normal px-2 py-1">
-                      {{ is_array(json_decode($branch->weekend)) ? implode(', ', json_decode($branch->weekend)) : ($branch->weekend ?? 'N/A') }}
-                    </span>
+                    <small class="text-dark font-weight-bold d-block">
+                      {{ $branch->timing_start ? \Carbon\Carbon::parse($branch->timing_start)->format('h:i A') : '—' }}
+                      <span class="text-muted mx-1">to</span>
+                      {{ $branch->timing_off ? \Carbon\Carbon::parse($branch->timing_off)->format('h:i A') : '—' }}
+                    </small>
+                    <small class="text-muted">
+                      <i class="fas fa-phone-alt mr-1"></i>{{ $branch->phone_number ?? 'N/A' }}
+                    </small>
                   </td>
                   <td>
-                    <small class="text-secondary font-weight-bold">{{ \Carbon\Carbon::parse($branch->created_at)->format('M d, Y') }}</small>
+                    @php
+                      $weekend = is_array(json_decode($branch->weekend)) ? json_decode($branch->weekend) : [];
+                    @endphp
+                    @if(count($weekend))
+                      <span class="badge badge-soft-secondary">{{ implode(', ', $weekend) }}</span>
+                    @else
+                      <span class="text-muted small">None</span>
+                    @endif
                   </td>
-                  <td align="right">
-                    <a href="{{ url('/branches/'.$branch->id.'/edit') }}" class="btn btn-sm btn-outline-primary mr-1" title="Edit">
+                  <td class="text-center">
+                    @if($branch->status == 1)
+                      <span class="badge badge-soft-success">Active</span>
+                    @else
+                      <span class="badge badge-soft-danger">Inactive</span>
+                    @endif
+                  </td>
+                  <td class="text-right text-nowrap">
+                    <a href="{{ route('branch.edit', $branch->id) }}" class="btn btn-sm btn-outline-primary peams-action-btn mr-1" title="Edit branch">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <form action="{{ url('/branches/'.$branch->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete branch record?');">
+                    <form action="{{ route('branch.destroy', $branch->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete branch record?');">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                      <button type="submit" class="btn btn-sm btn-outline-danger peams-action-btn" title="Delete branch">
                         <i class="fas fa-trash-alt"></i>
                       </button>
                     </form>
@@ -66,7 +92,10 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="5" class="text-center py-4 text-muted">No branches found.</td>
+                  <td colspan="6" class="text-center py-5 text-muted">
+                    <i class="fas fa-code-branch d-block mb-2" style="font-size: 1.8rem; opacity: 0.4;"></i>
+                    No branches found.
+                  </td>
                 </tr>
               @endforelse
             </tbody>
@@ -76,4 +105,21 @@
     </div>
   </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+  $(function () {
+    $('#branches-table').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": false,
+      "responsive": true,
+      "order": [[0, 'asc']]
+    });
+  });
+</script>
 @endsection

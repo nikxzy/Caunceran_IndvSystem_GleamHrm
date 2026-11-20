@@ -31,9 +31,9 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-						<form id="editBranchForm" action="{{route('branch.update',[$office_location->id])}}" method="post" enctype="multipart/form-data">
-							<input name="_method" type="hidden" value="PUT">
-							{{csrf_field()}}
+						<form id="editBranchForm" action="{{ route('branch.update', $office_location->id) }}" method="post" enctype="multipart/form-data">
+							@csrf
+							@method('PUT')
 							<div class="row">
 								<div class="col-md-6">
 									<div class="form-group">
@@ -44,7 +44,6 @@
 								<div class="col-md-6">
 									<div class="form-group has-success">
 										<label class="control-label">Status<span class="text-danger">*</span></label>
-										{{ csrf_field() }}
 										<select name="status" id="status" class="form-control custom-select" >
 											<option value="">Select Status</option>
 											<option value="1"@if($office_location->status == 1) selected @endif>Active</option>
