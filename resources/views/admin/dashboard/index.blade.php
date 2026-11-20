@@ -113,7 +113,7 @@
                     <h5 class="fw-bold text-slate-800 mb-0">
                         <i class="fas fa-user-plus text-success me-2"></i>Recently Added Employees
                     </h5>
-                    <a href="{{ route('employees.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-semibold text-primary">View All</a>
+                    <a href="{{ route('employee.index') }}" class="btn btn-sm btn-light border rounded-pill px-3 fs-8 fw-semibold text-primary">View All</a>
                 </div>
                 <div class="card-body px-4 pt-0 pb-3">
                     <div class="table-responsive">
