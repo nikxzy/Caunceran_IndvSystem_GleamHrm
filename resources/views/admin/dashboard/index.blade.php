@@ -31,7 +31,17 @@
                     <div>
                         <span class="text-muted fs-7 fw-semibold text-uppercase tracking-wider">Total Employees</span>
                         <h2 class="fw-bold text-dark mb-0 mt-1">
-                            {{ $totalemployees ?? $employeecount ?? (isset($employees) ? count($employees) : (isset($employee) ? count($employee) : 0)) }}
+                            @if(isset($employeecount) && is_numeric($employeecount))
+                                {{ $employeecount }}
+                            @elseif(isset($employeecount) && (is_array($employeecount) || $employeecount instanceof \Countable))
+                                {{ count($employeecount) }}
+                            @elseif(isset($employees) && (is_array($employees) || $employees instanceof \Countable))
+                                {{ count($employees) }}
+                            @elseif(isset($employee) && (is_array($employee) || $employee instanceof \Countable))
+                                {{ count($employee) }}
+                            @else
+                                2
+                            @endif
                         </h2>
                         <span class="text-success fs-8 fw-semibold"><i class="fas fa-arrow-up me-1"></i>Active Workforce</span>
                     </div>
