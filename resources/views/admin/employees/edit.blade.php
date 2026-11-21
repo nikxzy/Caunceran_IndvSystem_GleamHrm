@@ -708,16 +708,18 @@
             readURL(this);
         });
     });
-    function readURL(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
-            }
-            reader.readAsDataURL(input.files[0]);
+   function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
+            // Itatago ang 'Add Image' button overlay kapag may naselect nang larawan
+            $('.picture-src').addClass('has-image');
+            $('.btn-add-image, .picture-src + span, label[for="wizard-picture"]').css('opacity', '0.3');
         }
+        reader.readAsDataURL(input.files[0]);
     }
+}
 
     //Custom design form example
     $(".form-control").keypress(function(e) {
@@ -728,11 +730,28 @@
     });
 
     $("input").attr('autocomplete', 'off');
-    var $input = $('<button id="save" class="btn text-white" style="margin:0px 0 0 5px;padding:8.2px 12px;background-color:#009efb">Update Employee</button>');
-    $input.appendTo($('ul[aria-label=Pagination]'));
-    $('#save').click(function(){
-    $('#confirm_pass').val('password123');
-    $(".button").click();
+var $input = $('<button id="save" type="button" class="btn text-white" style="margin:0px 0 0 5px;padding:8.2px 12px;background-color:#009efb">Update Employee</button>');
+$input.appendTo($('ul[aria-label="Pagination"]'));
+
+$('#save').click(function(e){
+    e.preventDefault();
+    
+    // 1. Loading Feedback para sa user
+    var $btn = $(this);
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+
+    // 2. Auto-fill admin confirmation password para hindi mag-prompt/freeze ang modal
+    if ($('#confirm_pass').length) {
+        $('#confirm_pass').val('password123');
+    }
+
+    // 3. Direct submit sa main form
+    var $form = $('form').first();
+    if ($form.length) {
+        $form.submit();
+    } else {
+        $(".button").click();
+    }
 });
 </script>
 @stop
