@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('Heading')
 	<h3 class="text-themecolor">Apply Role</h3>
 	<ol class="breadcrumb">

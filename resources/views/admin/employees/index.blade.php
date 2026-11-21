@@ -8,7 +8,7 @@
         <h3 class="m-0 font-weight-bold text-dark">Employee Management</h3>
         <p class="text-muted small mb-0">PEAMS Personnel Records & Branch Directory</p>
       </div>
-      <a href="{{ url('/employees/create') }}" class="btn btn-primary shadow-sm">
+      <a href="{{ route('employee.create') }}" class="btn btn-primary shadow-sm">
         <i class="fas fa-user-plus mr-1"></i> Add New Employee
       </a>
     </div>
@@ -31,6 +31,7 @@
                 <th style="width: 50px;">Avatar</th>
                 <th>Name & Email</th>
                 <th>Designation</th>
+                <th>Hub / Branch</th>
                 <th>Employment Status</th>
                 <th>Joining Date</th>
                 <th class="text-right">Actions</th>
@@ -52,6 +53,10 @@
                     </span>
                   </td>
                   <td>
+                    <span class="d-block small font-weight-bold text-dark">{{ optional($emp->hub)->name ?? 'Unassigned hub' }}</span>
+                    <small class="text-muted">{{ optional($emp->branch)->name ?? 'No branch' }}</small>
+                  </td>
+                  <td>
                     @if(strtolower($emp->employment_status ?? '') == 'permanent')
                       <span class="badge badge-success px-2 py-1">Permanent</span>
                     @else
@@ -62,28 +67,58 @@
                     <small class="text-secondary font-weight-bold">{{ \Carbon\Carbon::parse($emp->joining_date)->format('M d, Y') }}</small>
                   </td>
                   <td align="right">
-                    <a href="{{ url('/employees/'.$emp->id.'/edit') }}" class="btn btn-sm btn-outline-primary mr-1" title="Edit">
+                    <a href="{{ route('employee.edit', $emp->id) }}" class="btn btn-sm btn-outline-primary mr-1" title="Edit">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <form action="{{ url('/employees/'.$emp->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete employee record?');">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                      </button>
-                    </form>
+                    <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
+                      data-toggle="modal" data-target="#deleteEmployeeModal"
+                      data-action="{{ route('employee.destroy', $emp->id) }}"
+                      data-name="{{ $emp->firstname }} {{ $emp->lastname }}">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
                   </td>
                 </tr>
               @empty
                 <tr>
-                  <td colspan="6" class="text-center py-4 text-muted">No employees registered in system.</td>
+                  <td colspan="7" class="text-center py-4 text-muted">No employees registered in system.</td>
                 </tr>
               @endforelse
             </tbody>
           </table>
         </div>
       </div>
-    </div>
+    </div>  </div>
+</div>
+
+<div class="modal fade" id="deleteEmployeeModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form class="modal-content" method="POST" id="deleteEmployeeForm">
+      @csrf
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-user-slash text-danger mr-2"></i> Delete Employee</h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2">Remove <strong id="deleteEmployeeName"></strong> from the active PEAMS directory?</p>
+        <div class="form-group"><label>Confirm your admin password *</label><input type="password" name="password" class="form-control" required></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-danger">Delete Employee</button>
+      </div>
+    </form>
   </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  $('#deleteEmployeeModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    $('#deleteEmployeeForm').attr('action', button.data('action'));
+    $('#deleteEmployeeName').text(button.data('name'));
+  });
+});
+</script>
 @endsection

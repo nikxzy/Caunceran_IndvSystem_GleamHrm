@@ -24,89 +24,66 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $this->meta['title'] = 'Applicants';
-        $dates = [];
-        $applicants = Applicant::where('recruited', 0)->count();
-        $male = Employee::where('gender', 'Male')->count();
-        $female = Employee::where('gender', 'Female')->count();
-        $months = ['January' => '1', 'February' => '2', 'March' => '3', 'April' => '4', 'May' => '5', 'June' => '6', 'July' => '7', 'August' => '8', 'September' => '9', 'October' => '10', 'November' => '11', 'December' => '12'];
-        $attArr = [];
-        $counts = [];
+        $hubs = \App\Hub::active()->orderBy('name')->get();
 
-        foreach ($months as $month) {
-            if (Auth::user()->isAllowed('DashboardController:index')) {
-                $employees = Employee::all();
-            } else {
-                $employees = Employee::where('id', Auth::user()->id)->get();
-            }
-            foreach ($employees as $employee) {
-                $weekend = Branch::where('id', $employee->branch_id)->first();
-                $numberOfDays = Carbon::createFromDate(Carbon::now()->year, (int)$month, 1)->daysInMonth;
-                $days = 0;
-                for ($i = 1; $i <= $numberOfDays; $i++) {
-                    $now = Carbon::now();
-                    $date = Carbon::parse($i.'-'.$month.'-'.$now->year)->toDateString();
-                    if (in_array(Carbon::parse($date)->format('l'), json_decode($weekend->weekend)) == false) {
-                        $days += 1;
-                    }
-                }
-                $counts[$month][$employee->id] = (AttendanceSummary::where('employee_id', $employee->id)->whereRaw('MONTH(date) = ?', $month)->whereRaw('YEAR(date) = ?', date('Y'))->count() / $days) * 100;
+        $items = \App\Item::with('stocks')->get();
+        $lowStockItems = 0;
+        $unitsOnHand = 0;
+        $stockValue = 0;
+
+        foreach ($items as $item) {
+            $quantity = (int) $item->stocks->sum('quantity');
+            $unitsOnHand += $quantity;
+            $stockValue += $quantity * (float) $item->unit_cost;
+            if ($quantity <= (int) $item->reorder_level) {
+                $lowStockItems++;
             }
         }
 
-        $averageAttendance = [];
-        foreach ($counts as $date => $array) {
-            if (Auth::user()->isAllowed('DashboardController:index')) {
-                $employeesCount = Employee::all()->count();
-            } else {
-                $employeesCount = Employee::where('id', Auth::user()->id)->count();
-            }
-            $averageAttendance[] = round((array_sum($array) / $employeesCount), 2);
-        }
-        // $averageAttendance = [5,10,15,8,11,6,20,18,16,25,12,21];
+        $hubStock = $hubs->map(function ($hub) {
+            return [
+                'label' => $hub->name,
+                'quantity' => (int) \App\InventoryStock::where('hub_id', $hub->id)->sum('quantity'),
+            ];
+        });
 
-        $averageAttendance = json_encode($averageAttendance);
-        $Chartmonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        $chartMonths = json_encode($Chartmonths);
+        $orderStatuses = collect(\App\Order::$statuses)->map(function ($label, $status) {
+            return [
+                'label' => $label,
+                'total' => \App\Order::where('status', $status)->count(),
+            ];
+        })->values();
 
-        $Designations = Designation::all();
-        $chartEmployee = [];
-        $DesignationName = [];
-        foreach ($Designations as $Designation) {
-            $chartEmp = Employee::where('designation', $Designation->designation_name)->count();
-            if ($chartEmp > 0) {
-                $chartEmployee[] = $chartEmp;
-                $DesignationName[] = $Designation->designation_name;
-            }
-        }
-        $replace = ['[', ']'];
-        $DesignationName = json_encode($DesignationName);
-        $designationSeries = json_encode($chartEmployee);
+        $stats = [
+            'total_employees' => \App\Employee::count(),
+            'active_employees' => \App\Employee::where('is_active', true)->count(),
+            'units_on_hand' => $unitsOnHand,
+            'stock_value' => $stockValue,
+            'low_stock' => $lowStockItems,
+            'pending_pos' => \App\PurchaseOrder::where('status', \App\PurchaseOrder::STATUS_PENDING)->count(),
+            'open_orders' => \App\Order::whereIn('status', [\App\Order::STATUS_PENDING_HANDOFF, \App\Order::STATUS_IN_TRANSIT])->count(),
+            'overdue_loans' => \App\EquipmentLoan::overdue()->count(),
+            'open_maintenance' => \App\MaintenanceLog::outstanding()->count(),
+            'in_transit_transfers' => \App\StockTransfer::where('status', \App\StockTransfer::STATUS_IN_TRANSIT)->count(),
+        ];
 
-        if (Auth::user()->isAllowed('DashboardController:index')) {
-            return view('admin.dashboard.index', $this->metaResponse())
-            ->with('employee', Employee::orderBy('joining_date', 'Desc')->take(5)->get())
-            ->with('totalemployees', Employee::where('employment_status', 'permanent')->orwhere('employment_status', 'probation')->get())
-            ->with('designationSeries', $designationSeries)
-            ->with('DesignationName', $DesignationName)
-            ->with('averageAttendance', $averageAttendance)
-            ->with('chartMonths', $chartMonths)
-            ->with('male', $male)
-            ->with('female', $female)
-            ->with('applicants', $applicants);
-        } else {
-            $approvedLeaves = Leave::where('employee_id', Auth::user()->id)->where('status', 'Approved')->count();
-            $rejectedLeaves = Leave::where('employee_id', Auth::user()->id)->where('status', 'Declined')->count();
-            $pendingLeaves = Leave::where('employee_id', Auth::user()->id)->where('status', 'pending')->count();
+        $recentOrders = \App\Order::with(['client', 'hub'])->latest()->take(5)->get();
+        $dueMaintenance = \App\Item::dueForService(14)->orderBy('next_service_at')->take(5)->get();
+        $recentActivity = \App\AccessAuditLog::with(['actor', 'employee'])->latest()->take(8)->get();
+        $recentMovements = \App\StockMovement::with(['item', 'hub'])->latest()->take(6)->get();
 
-            return view('admin.dashboard.index', $this->metaResponse())
-            ->with('averageAttendance', $averageAttendance)
-            ->with('chartMonths', $chartMonths)
-            ->with('applicants', $applicants)
-            ->with('approvedLeaves', $approvedLeaves)
-            ->with('rejectedLeaves', $rejectedLeaves)
-            ->with('pendingLeaves', $pendingLeaves);
-        }
+        $this->meta['title'] = 'Operations Dashboard';
+
+        return view('admin.dashboard.index', $this->metaResponse())->with([
+            'stats' => $stats,
+            'hubs' => $hubs,
+            'hubStock' => $hubStock,
+            'orderStatuses' => $orderStatuses,
+            'recentOrders' => $recentOrders,
+            'dueMaintenance' => $dueMaintenance,
+            'recentActivity' => $recentActivity,
+            'recentMovements' => $recentMovements,
+        ]);
     }
 
     //    Help

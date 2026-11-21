@@ -45,11 +45,23 @@ Route::get('/job/skill/{jobId}', [
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth'], function () {
-    // Legacy sidebar URLs (kept so old bookmarks do not 404)
-    Route::redirect('/branches', '/branch');
-    Route::redirect('/attendance', '/attendance/show');
-    Route::redirect('/leaves', '/employee_leaves');
-    Route::redirect('/roles_permissions', '/roles');
+    // Safe fallback redirects for legacy bookmarks
+    Route::get('/branches', function () {
+        return redirect()->route('branch.index');
+    });
+    Route::get('/attendance', function () {
+        return redirect()->route('attendance');
+    });
+    Route::get('/leaves', function () {
+        return redirect()->route('employeeleaves');
+    });
+    Route::get('/roles_permissions', function () {
+        return redirect()->route('roles_permissions');
+    });
+    Route::get('/employees', [
+        'uses' => 'EmployeeController@index',
+        'as'   => 'employee.index',
+    ]);
 
     // Salary Slip routes
     Route::Get('/slips/salary/{month?}', [
@@ -668,6 +680,71 @@ Route::group(['middleware' => 'auth'], function () {
             'uses' => 'PlatformController@update',
             'as'   => 'admin.platform.update',
         ]);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | PEAMS OPERATIONS MODULES
+    |--------------------------------------------------------------------------
+    | Available to every signed-in PEAMS user; every state change is written
+    | to the access audit log. Controller-level role rules can be layered in
+    | without changing these named routes.
+    */
+    Route::prefix('peams')->name('peams.')->group(function () {
+        // Inventory & catalog
+        Route::get('/inventory', 'InventoryController@index')->name('inventory.index');
+        Route::post('/inventory', 'InventoryController@store')->name('inventory.store');
+        Route::put('/inventory/{item}', 'InventoryController@update')->name('inventory.update');
+        Route::post('/inventory/adjust', 'InventoryController@adjust')->name('inventory.adjust');
+
+        // Orders, picking, dispatch & digital POD
+        Route::get('/orders', 'OrderController@index')->name('orders.index');
+        Route::get('/orders/create', 'OrderController@create')->name('orders.create');
+        Route::post('/orders', 'OrderController@store')->name('orders.store');
+        Route::get('/orders/{order}', 'OrderController@show')->name('orders.show');
+        Route::post('/orders/{order}/picking-slip', 'OrderController@generatePickingSlip')->name('orders.generate-picking-slip');
+        Route::get('/orders/{order}/picking-slip', 'OrderController@pickingSlip')->name('orders.picking-slip');
+        Route::post('/orders/{order}/picked', 'OrderController@markPicked')->name('orders.mark-picked');
+        Route::post('/orders/{order}/dispatch', 'OrderController@dispatch')->name('orders.dispatch');
+        Route::post('/orders/{order}/deliver', 'OrderController@deliver')->name('orders.deliver');
+        Route::post('/orders/{order}/cancel', 'OrderController@cancel')->name('orders.cancel');
+
+        // Inter-branch stock transfers
+        Route::get('/transfers', 'TransferController@index')->name('transfers.index');
+        Route::get('/transfers/create', 'TransferController@create')->name('transfers.create');
+        Route::post('/transfers', 'TransferController@store')->name('transfers.store');
+        Route::get('/transfers/{transfer}', 'TransferController@show')->name('transfers.show');
+        Route::post('/transfers/{transfer}/dispatch', 'TransferController@dispatch')->name('transfers.dispatch');
+        Route::post('/transfers/{transfer}/receive', 'TransferController@receive')->name('transfers.receive');
+
+        // Equipment loan tracker
+        Route::get('/loans', 'EquipmentLoanController@index')->name('loans.index');
+        Route::get('/loans/create', 'EquipmentLoanController@create')->name('loans.create');
+        Route::post('/loans', 'EquipmentLoanController@store')->name('loans.store');
+        Route::post('/loans/{loan}/return', 'EquipmentLoanController@returnLoan')->name('loans.return');
+
+        // Preventive maintenance & repair incidents
+        Route::get('/maintenance', 'MaintenanceController@index')->name('maintenance.index');
+        Route::get('/maintenance/create', 'MaintenanceController@create')->name('maintenance.create');
+        Route::post('/maintenance', 'MaintenanceController@store')->name('maintenance.store');
+        Route::post('/maintenance/{maintenance}/status', 'MaintenanceController@updateStatus')->name('maintenance.status');
+        Route::post('/maintenance/schedule-preventive', 'MaintenanceController@schedulePreventive')->name('maintenance.schedule-preventive');
+
+        // Purchase orders & approvals
+        Route::get('/purchase-orders', 'PurchaseOrderController@index')->name('purchase-orders.index');
+        Route::get('/purchase-orders/create', 'PurchaseOrderController@create')->name('purchase-orders.create');
+        Route::post('/purchase-orders', 'PurchaseOrderController@store')->name('purchase-orders.store');
+        Route::get('/purchase-orders/{purchaseOrder}', 'PurchaseOrderController@show')->name('purchase-orders.show');
+        Route::post('/purchase-orders/{purchaseOrder}/approve', 'PurchaseOrderController@approve')->name('purchase-orders.approve');
+        Route::post('/purchase-orders/{purchaseOrder}/receive', 'PurchaseOrderController@receive')->name('purchase-orders.receive');
+
+        // Asset disposal registry
+        Route::get('/disposals', 'AssetDisposalController@index')->name('disposals.index');
+        Route::get('/disposals/create', 'AssetDisposalController@create')->name('disposals.create');
+        Route::post('/disposals', 'AssetDisposalController@store')->name('disposals.store');
+
+        // Access audit dashboard
+        Route::get('/audit', 'AccessAuditController@index')->name('audit.index');
     });
 
     //My Attendance

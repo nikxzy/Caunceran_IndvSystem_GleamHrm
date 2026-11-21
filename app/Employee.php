@@ -18,7 +18,7 @@ class Employee extends Authenticatable
     protected $appends = ['full_name'];
 
     protected $fillable = [
-        'firstname', 'department_id', 'lastname', 'contact_no', 'emergency_contact_relationship', 'emergency_contact', 'emergency_contact_address', 'password', 'official_email', 'personal_email', 'designation', 'status', 'is_active', 'last_login_at', 'employment_status', 'picture', 'exit_date', 'total_salary', 'bonus', 'gross_salary', 'identity_no', 'date_of_birth', 'current_address', 'permanent_address', 'city', 'joining_date', 'exit_date', 'branch_id', 'gender', 'deleted_at', 'created_at', 'updated_at',
+        'firstname', 'department_id', 'lastname', 'contact_no', 'emergency_contact_relationship', 'emergency_contact', 'emergency_contact_address', 'password', 'official_email', 'personal_email', 'designation', 'status', 'is_active', 'last_login_at', 'employment_status', 'picture', 'exit_date', 'total_salary', 'bonus', 'gross_salary', 'identity_no', 'date_of_birth', 'current_address', 'permanent_address', 'city', 'joining_date', 'exit_date', 'branch_id', 'hub_id', 'gender', 'deleted_at', 'created_at', 'updated_at',
     ];
 
     protected $casts = [
@@ -34,6 +34,16 @@ class Employee extends Authenticatable
     public function branch()
     {
         return $this->belongsTo('App\Branch', 'branch_id');
+    }
+
+    public function hub()
+    {
+        return $this->belongsTo(Hub::class, 'hub_id');
+    }
+
+    public function auditLogs()
+    {
+        return $this->hasMany(AccessAuditLog::class, 'employee_id');
     }
 
     public function attendanceSummary()

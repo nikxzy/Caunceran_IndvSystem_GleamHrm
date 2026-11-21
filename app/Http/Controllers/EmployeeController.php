@@ -27,21 +27,19 @@ use Spatie\Permission\Models\Role;
 class EmployeeController extends Controller
 {
     public $designations = [
-        'ceo'                         => 'CEO',
-        'project_coordinator'         => 'Project Coordinator',
-        'web_developer'               => 'Web Developer',
-        'junior_web_developer'        => 'Junior Web Developer',
-        'front_end_developer'         => 'Front-end Developer',
-        'account_sales_executive'     => 'Account Sales Executive',
-        'sales_officer'               => 'Sales Officer',
-        'digital_marketing_executive' => 'Digital Marketing Executive',
-        'content_writer'              => 'Content Writer',
-        'digital_marketer'            => 'Digital Marketer',
-        'web_designer_lead'           => 'Web Designer Lead',
-        'junior_web_designer'         => 'Junior Web Designer',
-        'hr_manager'                  => 'HR Manager',
-        'hr_officer'                  => 'HR Officer',
-        'admin'                       => 'Admin',
+        'warehouse_manager'        => 'Warehouse Manager',
+        'inventory_clerk'          => 'Inventory Clerk',
+        'logistics_coordinator'    => 'Logistics Coordinator',
+        'order_picker'             => 'Order Picker',
+        'equipment_technician'     => 'Equipment Technician',
+        'field_sales_representative' => 'Field Sales Representative',
+        'delivery_driver'          => 'Delivery Driver',
+        'hr_admin_officer'         => 'HR & Admin Officer',
+        'branch_supervisor'        => 'Branch Supervisor',
+        'branch_cashier'           => 'Branch Cashier',
+        'account_executive'        => 'Account Executive',
+        'maintenance_lead'         => 'Maintenance Lead',
+        'operations_assistant'     => 'Operations Assistant',
     ];
 
     public $employment_statuses = [
@@ -72,11 +70,11 @@ class EmployeeController extends Controller
     public function index($id = '')
     {
         if ($id == 'all') {
-            $data = Employee::with('branch', 'department')->get();
+            $data = Employee::with('branch', 'department', 'hub')->get();
         } elseif ($id == '') {
-            $data = Employee::with('branch', 'department')->where('status', '!=', '0')->get();
+            $data = Employee::with('branch', 'department', 'hub')->where('status', '!=', '0')->get();
         } else {
-            $data = Employee::with('branch', 'department')
+            $data = Employee::with('branch', 'department', 'hub')
                 ->where('employment_status', $id)
                 ->get();
         }
@@ -94,6 +92,7 @@ class EmployeeController extends Controller
     {
         return view('admin.employees.create', ['title' => 'Add Employee'])
             ->with('branches', Branch::all())
+            ->with('hubs', \App\Hub::active()->orderBy('name')->get())
             ->with('departments', Department::all())
             ->with('employment_statuses', $this->employment_statuses)
             ->with('designations', Designation::all())
@@ -142,6 +141,10 @@ class EmployeeController extends Controller
 
         if (! empty($request->branch_id)) {
             $arr['branch_id'] = $request->branch_id;
+        }
+
+        if (! empty($request->hub_id)) {
+            $arr['hub_id'] = $request->hub_id;
         }
 
         if ($request->picture != '') {
@@ -242,6 +245,7 @@ class EmployeeController extends Controller
         return view('admin.employees.edit', ['title' => 'Update Employee'])
             ->with('employees', $employees)
             ->with('branches', Branch::all())
+            ->with('hubs', \App\Hub::active()->orderBy('name')->get())
             ->with('designations', Designation::all())
             ->with('departments', Department::all())
             ->with('employment_statuses', $this->employment_statuses)
@@ -281,6 +285,7 @@ class EmployeeController extends Controller
         return view('admin.employees.edit', ['title' => 'Update Employee'])
             ->with('employee', $employee)
             ->with('branches', Branch::all())
+            ->with('hubs', \App\Hub::active()->orderBy('name')->get())
             ->with('designations', $this->designations)
             ->with('employment_statuses', Designation::all())
             ->with('employee_role_id', $employee_role_id)
@@ -329,6 +334,9 @@ class EmployeeController extends Controller
             $employee->type = $request->type;
             if (! empty($request->branch_id)) {
                 $employee->branch_id = $request->branch_id;
+            }
+            if (! empty($request->hub_id)) {
+                $employee->hub_id = $request->hub_id;
             }
             $employee->identity_no = $request->identity_no;
             $employee->date_of_birth = $request->date_of_birth;

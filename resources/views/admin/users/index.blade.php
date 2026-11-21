@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('Heading')
 	<button type="button" class="btn btn-info btn-rounded m-t-10 float-right" onclick="window.location.href='{{route('user.create')}}'"><span class="fas fa-plus"></span> Add User</button>
 	<h3 class="text-themecolor">Users</h3>

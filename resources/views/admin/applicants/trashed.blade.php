@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('Heading')
 	<h3 class="text-themecolor"> Applcants</h3>
 @stop

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuditLogger;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,11 +42,17 @@ class LoginController extends Controller
     {
         //authenticated user has any role to use the system
         if (Auth::user()->status == 0 && Auth::user()->designation != 'admin') {
+            AuditLogger::record('access_denied', 'Inactive account attempted to log in.');
             $this->logout($request);
             Session::flash('error', trans('You don\'t have permission to access the system. Please ask your admin to grant you access.'));
 
             return redirect('/login');
         }
+
+        $user->last_login_at = now();
+        $user->save();
+
+        AuditLogger::record('login', $user->full_name.' signed in to PEAMS.');
     }
 
     /**
@@ -79,6 +86,10 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            AuditLogger::record('logout', Auth::user()->full_name.' signed out of PEAMS.');
+        }
+
         $this->guard()->logout();
 
         $request->session()->invalidate();

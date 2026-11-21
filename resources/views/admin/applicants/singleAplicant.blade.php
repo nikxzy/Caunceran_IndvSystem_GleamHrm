@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('Heading')
 	<h3 class="text-themecolor">Application Details</h3>
 @stop

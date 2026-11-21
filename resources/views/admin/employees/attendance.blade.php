@@ -1,4 +1,4 @@
-@extends('layouts.admin') @section('title') HRM|{{$title}} @endsection
+@extends('layouts.master') @section('title') HRM|{{$title}} @endsection
 @section('Heading')
     <button type="button"  onclick="window.location.href='{{route('employee.create')}}'" class="btn btn-info btn-rounded m-t-10 float-right"><span class="fas fa-plus" ></span> Add Employee</button>
     <h3 class="text-themecolor">Employees</h3>

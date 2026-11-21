@@ -150,6 +150,17 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12">
                                     <div class="form-group">
+                                        <label class="control-label">Hub Assignment</label>
+                                        <select class="form-control custom-select" name="hub_id">
+                                            <option value="">Select hub</option>
+                                            @foreach($hubs as $hub)
+                                                <option value="{{ $hub->id }}" @if(old('hub_id') == $hub->id) selected @endif>{{ $hub->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="form-group">
                                         <label class="control-label">Joining Date</label>
                                         <input type="date" id="joining_date" class="form-control" placeholder="Enter Joining Date" name="joining_date" value="{{old('joining_date')}}">
                                     </div>

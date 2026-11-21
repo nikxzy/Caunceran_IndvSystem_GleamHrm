@@ -6,8 +6,11 @@
     </li>
     <li class="nav-item d-none d-sm-inline-block ml-2">
       <span class="badge badge-light border text-secondary px-3 py-1 font-weight-bold" style="border-radius: 20px;">
-        <i class="fas fa-building text-primary mr-1"></i> Mindoro Pack & Pour Warehousing Solutions
+        <i class="fas fa-warehouse text-primary mr-1"></i> Bongabong Central Hub &amp; Roxas Branch
       </span>
+    </li>
+    <li class="nav-item d-none d-md-inline-block ml-2">
+      <span class="text-muted small"><i class="fas fa-truck text-success mr-1"></i>{{ \App\Hub::active()->count() }} active hubs</span>
     </li>
   </ul>
 

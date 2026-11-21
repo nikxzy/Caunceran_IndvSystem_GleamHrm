@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.master')
 @section('Heading')
 	<ol class="breadcrumb">
 		<li class="breadcrumb-item"><a href="javascript:void(0)">Dashboard</a></li>

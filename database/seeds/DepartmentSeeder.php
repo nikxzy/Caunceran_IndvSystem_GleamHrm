@@ -1,23 +1,24 @@
 <?php
 
+use App\Department;
 use Illuminate\Database\Seeder;
 
 class DepartmentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        App\Department::Create([
-            'department_name'      => 'HR',
-            'status'               => 'Active',
-        ]);
-        App\Department::Create([
-            'department_name'      => 'Development',
-            'status'               => 'Active',
-        ]);
+        $departments = [
+            'Office & Admin',
+            'Warehouse & Logistics',
+            'Field Sales & Delivery',
+            'Equipment & Maintenance',
+        ];
+
+        foreach ($departments as $name) {
+            Department::firstOrCreate(
+                ['department_name' => $name],
+                ['status' => 'Active']
+            );
+        }
     }
 }
