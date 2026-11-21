@@ -27,7 +27,7 @@ services:
     links:
       - phpfpm:phpfpm
     ports:
-      - "8080:80"
+      - "80:80"
     volumes:
       - ./docker/development/nginx/nginx.conf:/etc/nginx/nginx.conf
     volumes_from:
