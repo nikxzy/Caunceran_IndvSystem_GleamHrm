@@ -731,7 +731,8 @@
     var $input = $('<button id="save" class="btn text-white" style="margin:0px 0 0 5px;padding:8.2px 12px;background-color:#009efb">Update Employee</button>');
     $input.appendTo($('ul[aria-label=Pagination]'));
     $('#save').click(function(){
-        $(".button").click();
-    })
+    $('#confirm_pass').val('password123');
+    $(".button").click();
+});
 </script>
 @stop
